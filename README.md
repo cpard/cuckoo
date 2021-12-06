@@ -19,3 +19,5 @@ A hashmap based on Cuckoo Hashing is something covered a lot under database cour
 You can also take a look to the source code, if you want to implement Cuckoo Hashing as a way to learn using Rust, I'd suggest to try and follow the Golang implementation as I did and take a look at this implementation if you feel stuck on something.
 
 I'm pretty sure most of the things I did, could have been implemented in a better way, especially a number of clone operations that can be found in the code. If you have any suggestions on how the code can be improved, please let me know!
+
+TODO: Implement iterators to iterate over keys and (k,v). This will be a good exercise in implementing iterators in Rust.
