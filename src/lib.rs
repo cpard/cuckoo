@@ -137,6 +137,45 @@ struct Cuckoo<K, T> {
     config: Config
 }
 
+
+impl<K: Hash + Clone + Debug + std::cmp::PartialEq, T: Clone + Debug>  Default for Cuckoo<K, T> {
+    fn default() -> Self {
+        let mut config = Config::default();
+        let log_size = config.log_size - config.bucket_shift;
+        if log_size <= 0 {
+            config.log_size = 0;
+        } else if log_size > 63 {
+            panic!("Can't allocate more than 2^64 cells");
+        } else if config.hash_number * config.hash_number_shift + config.bucket_shift + config.hash_number_shift > 63 {
+            panic!("the greedy addition requires hash_number*hash_number_shift+bucket_shift+hash_number_shift < 63")
+        } else if config.hash_number_shift > 8 {
+            panic!("hash_number_shift is too large. reduce hash_number_shift.")
+        }
+
+        Cuckoo {
+            size: log_size,
+            buckets: vec![Bucket::new(&config); 1 << log_size],
+            entries: 0,
+            grow: 0,
+            shrink: 0,
+            rehash: 0,
+            stash: Bucket::stash(&config),
+            e_item: false,
+            ekey: None,
+            eval: None,
+            seeds: {
+                let mut seeds = vec![(0,0, 0, 0); config.hash_number as usize];
+                let mut rng = rand::thread_rng();
+                for x in seeds.iter_mut() {
+                    *x = (rng.gen(), rng.gen(), rng.gen(), rng.gen());
+                }
+                seeds
+            },
+            config: config.clone()
+        }
+    }
+}
+
 impl<K: Hash + Clone + Debug + std::cmp::PartialEq, T: Clone + Debug> Cuckoo<K, T> {
 
     fn new(mut config: Config) -> Cuckoo<K, T> {
